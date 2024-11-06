@@ -1,0 +1,55 @@
+name: Rust CI/CD Pipeline
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        components: clippy, rustfmt
+        override: true
+
+    - name: Update Rust
+      run: rustup update
+
+    - name: Check Rust Versions
+      run: make rust-version
+
+    - name: Lint Code
+      run: make lint
+
+    - name: Run Tests
+      run: make test
+
+    - name: Build Rust
+      run: make release
+
+    - name: Create Database Entry
+      run: make create
+
+    - name: Read Database Entry
+      run: make read
+
+    - name: Update Database Entry
+      run: make update
+
+    - name: Delete Database Entry
+      run: make delete
+
+    - name: Archive Optimized Binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: optimized-binary
+        path: target/release/urbanization_rs  
+
+      
