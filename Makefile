@@ -1,42 +1,35 @@
-.PHONY: rust-version format lint test run release all create read update delete
+# Install dependencies
+install:
+	pip install --upgrade pip &&\
+		pip install -r requirements.txt
 
-rust-version:
-	@echo "Rust command-line utility versions:"
-	@rustc --version
-	@cargo --version
-	@rustfmt --version
-	@rustup --version
-	@clippy-driver --version
-
-lint:
-	@cargo clippy --quiet
-
+# Run tests using pytest and generate coverage
 test:
-	@cargo test --quiet
+	python -m pytest -vv --cov=main --cov= test_*.py
 
-run:
-	@cargo run
+# Run unittests directly
+unittest:
+	python -m unittest discover -s . -p "test_*.py"
 
-release:
-	@cargo build --release
 
-all: format lint test run
+# Format code with black
+format:
+	black *.py 
 
-# CRUD operation targets
-create:
-	@cargo run -- create
+# Lint code with ruff (for faster linting)
+lint:
+	ruff check *.py 
 
-read:
-	@cargo run -- read
+# Lint Dockerfile with hadolint
+container-lint:
+	docker run --rm -i hadolint/hadolint < Dockerfile
 
-update:
-	@cargo run -- update
+# Refactor: run format and lint
+refactor: format lint
 
-delete:
-	@cargo run -- delete
+# Deploy target (implementation needed)
+deploy:
+	# deploy goes here
 
-extract:
-	@cargo run -- extract
-
-load:
-	@cargo run -- load
+# Run all steps (install, lint, test, format, deploy)
+all: install lint test format deploy
