@@ -5,7 +5,7 @@ ETL-Query script
 import argparse
 import sys
 from mylib.query import general_query, create_rec, update_rec, delete_rec, read_data
-from mylib.
+from mylib.transform_load import load
 
 
 # Handle arguments function
