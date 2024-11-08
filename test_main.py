@@ -1,49 +1,34 @@
 import unittest
-import os
-from main import load_customer_feedback  # Importing from main.py
+from unittest.mock import patch
+import main
 
 
-class TestCustomerFeedback(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        # Load the dataset before running tests using the function from main.py
-        cls.df = load_customer_feedback()
+class TestMain(unittest.TestCase):
 
-    def test_file_exists(self):
-        # Check if the file exists
-        self.assertTrue(
-            os.path.exists("data/customer_feedback_satisfaction1.csv"),
-            "CSV file does not exist.",
-        )
+    @patch("main.extract")
+    @patch("sys.argv", ["main.py", "extract"])
+    def test_extract(self, mock_extract):
+        """Test the extract functionality."""
+        main.main()
+        mock_extract.assert_called_once()
 
-    def test_dataframe_not_empty(self):
-        # Ensure the DataFrame is not empty
-        self.assertFalse(self.df.empty, "DataFrame is empty.")
+    @patch("main.load")
+    @patch("sys.argv", ["main.py", "transform_load"])
+    def test_transform_load(self, mock_load):
+        """Test the transform and load functionality."""
+        main.main()
+        mock_load.assert_called_once()
 
-    def test_columns_exist(self):
-        # Check that specific columns exist in the DataFrame
-        expected_columns = [
-            "CustomerID",
-            "Age",
-            "Gender",
-            "Country",
-            "Income",
-            "ProductQuality",
-            "ServiceQuality",
-            "PurchaseFrequency",
-            "FeedbackScore",
-            "LoyaltyLevel",
-            "SatisfactionScore",
-        ]
-        for column in expected_columns:
-            self.assertIn(
-                column, self.df.columns, f"Column {column} is missing in the DataFrame."
-            )
-
-    def test_no_null_values(self):
-        # Ensure there are no null values in the DataFrame
-        self.assertFalse(
-            self.df.isnull().values.any(), "DataFrame contains null values."
+    @patch("main.general_query")
+    @patch(
+        "sys.argv",
+        ["main.py", "general_query", "SELECT * FROM default.urbanizationdb LIMIT 10"],
+    )
+    def test_general_query(self, mock_general_query):
+        """Test the general query functionality."""
+        main.main()
+        mock_general_query.assert_called_once_with(
+            "SELECT * FROM default.urbanizationdb LIMIT 10"
         )
 
 
