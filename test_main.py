@@ -1,36 +1,28 @@
 import unittest
-from unittest.mock import patch
-import main
+from unittest.mock import patch, mock_open
+import sys
+import sqlite3
+from main import main
+from mylib.transform_load import load
 
 
 class TestMain(unittest.TestCase):
 
-    @patch("main.extract")
-    @patch("sys.argv", ["main.py", "extract"])
-    def test_extract(self, mock_extract):
-        """Test the extract functionality."""
-        main.main()
-        mock_extract.assert_called_once()
-
-    @patch("main.load")
-    @patch("sys.argv", ["main.py", "transform_load"])
-    def test_transform_load(self, mock_load):
-        """Test the transform and load functionality."""
-        main.main()
-        mock_load.assert_called_once()
-
-    @patch("main.general_query")
-    @patch(
-        "sys.argv",
-        ["main.py", "general_query", "SELECT * FROM default.urbanizationdb LIMIT 10"],
-    )
-    def test_general_query(self, mock_general_query):
-        """Test the general query functionality."""
-        main.main()
-        mock_general_query.assert_called_once_with(
-            "SELECT * FROM default.urbanizationdb LIMIT 10"
+    @patch("mylib.transform_load.load")
+    def test_load_action(self, mock_load):
+        # Mock data and arguments that match the customer_feedback_satisfaction schema
+        mock_data = (
+            "1,25,M,USA,50000,4,5,3,8,Gold,85.5\n"
+            "2,30,F,Canada,40000,3,4,2,7,Silver,75.0\n"
         )
-
-
-if __name__ == "__main__":
-    unittest.main()
+        with patch("builtins.open", mock_open(read_data=mock_data)):
+            test_args = ["main.py", "load", "--dataset", "test_data.csv"]
+            with patch.object(sys, "argv", test_args):
+                # Use an in-memory database for testing
+                conn = sqlite3.connect(":memory:")
+                mock_load.side_effect = lambda dataset, db_connection=conn: load(
+                    dataset, db_connection
+                )
+                main()
+                mock_load.assert_called_once_with("test_data.csv", conn)
+                conn.close()

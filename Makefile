@@ -11,7 +11,6 @@ test:
 unittest:
 	python -m unittest discover -s . -p "test_*.py"
 
-
 # Format code with black
 format:
 	black *.py 

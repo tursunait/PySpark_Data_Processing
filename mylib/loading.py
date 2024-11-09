@@ -1,42 +1,25 @@
-"""
-Transforms and Loads data into the local SQLite3 database
-"""
-
 import sqlite3
 import csv
 import os
 
 
-# load the csv file and insert into a new sqlite3 database
 def load(
     dataset="/Users/tusunaiturumbekova/PySpark_Data_Processing/data/customer_feedback_satisfaction.csv",
+    db_connection=None,
 ):
-    """Transforms and Loads data into the local SQLite3 database"""
+    """Transforms and Loads data into the customer_feedback_satisfaction SQLite3 database"""
 
-    # prints the current working directory
-    print(f"Current Working Directory: {os.getcwd()}")
-
-    # Check if the dataset file exists
-    if not os.path.exists(dataset):
-        print(f"Error: The dataset file '{dataset}' was not found.")
-        return
-
+    # Use the provided connection or create one if not provided
+    conn = db_connection or sqlite3.connect("customer_feedback_satisfactionDB.db")
     try:
-        # Open the CSV file
+        print(os.getcwd())
+
         with open(dataset, newline="") as csvfile:
             payload = csv.reader(csvfile, delimiter=",")
+            next(payload, None)  # Skip the header row if needed
 
-            # Skip the header row
-            next(payload, None)
-
-            # Connect to the SQLite database
-            conn = sqlite3.connect("customer_feedback_satisfactionDB.db")
             c = conn.cursor()
-
-            # Drop the existing table if it exists
             c.execute("DROP TABLE IF EXISTS customer_feedback_satisfaction")
-
-            # Create a new table with the required schema
             c.execute(
                 """
                 CREATE TABLE customer_feedback_satisfaction (
@@ -52,7 +35,7 @@ def load(
                     LoyaltyLevel TEXT,
                     SatisfactionScore REAL
                 )
-            """
+                """
             )
 
             # Insert data into the table
@@ -67,13 +50,12 @@ def load(
                 payload,
             )
 
-            # Commit changes and close the connection
-            conn.commit()
+            if not db_connection:
+                conn.commit()  # Commit only for file-based connections
+
             print("Data loaded successfully into 'customer_feedback_satisfaction'.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        # Ensure the connection is closed even if an error occurs
-        conn.close()
-
-    return "customer_feedback_satisfaction"
+        if not db_connection:
+            conn.close()

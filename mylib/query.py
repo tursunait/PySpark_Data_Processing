@@ -29,100 +29,6 @@ def general_query(query):
     log_query(f"{query}")
 
 
-def create_rec(
-    customer_id,
-    age,
-    gender,
-    country,
-    income,
-    product_quality,
-    service_quality,
-    purchase_frequency,
-    feedback_score,
-    loyalty_level,
-    satisfaction_score,
-):
-    """Inserts a record into the customer_feedback_satisfaction table"""
-    conn = sqlite3.connect("customer_feedback_satisfactionDB.db")
-    c = conn.cursor()
-    c.execute(
-        """
-        INSERT INTO customer_feedback_satisfaction
-        (CustomerID, Age, Gender, Country, Income, ProductQuality, 
-         ServiceQuality, PurchaseFrequency, FeedbackScore, LoyaltyLevel, SatisfactionScore) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-        (
-            customer_id,
-            age,
-            gender,
-            country,
-            income,
-            product_quality,
-            service_quality,
-            purchase_frequency,
-            feedback_score,
-            loyalty_level,
-            satisfaction_score,
-        ),
-    )
-    conn.commit()
-    conn.close()
-
-
-def update_rec(
-    customer_id,
-    age,
-    gender,
-    country,
-    income,
-    product_quality,
-    service_quality,
-    purchase_frequency,
-    feedback_score,
-    loyalty_level,
-    satisfaction_score,
-):
-    """Updates a record based on CustomerID"""
-    conn = sqlite3.connect("customer_feedback_satisfactionDB.db")
-    c = conn.cursor()
-    c.execute(
-        """
-        UPDATE customer_feedback_satisfaction
-        SET Age = ?, Gender = ?, Country = ?, Income = ?, ProductQuality = ?, 
-            ServiceQuality = ?, PurchaseFrequency = ?, FeedbackScore = ?, 
-            LoyaltyLevel = ?, SatisfactionScore = ?
-        WHERE CustomerID = ?
-        """,
-        (
-            age,
-            gender,
-            country,
-            income,
-            product_quality,
-            service_quality,
-            purchase_frequency,
-            feedback_score,
-            loyalty_level,
-            satisfaction_score,
-            customer_id,
-        ),
-    )
-    conn.commit()
-    conn.close()
-
-    log_query(
-        f"""
-        UPDATE customer_feedback_satisfaction SET 
-            Age={age}, Gender='{gender}', Country='{country}', Income={income}, 
-            ProductQuality={product_quality}, ServiceQuality={service_quality}, 
-            PurchaseFrequency={purchase_frequency}, FeedbackScore={feedback_score}, 
-            LoyaltyLevel='{loyalty_level}', SatisfactionScore={satisfaction_score} 
-        WHERE CustomerID={customer_id};
-        """
-    )
-
-
 def read_data():
     """Read all data from customer_feedback_satisfaction table"""
     conn = sqlite3.connect("customer_feedback_satisfactionDB.db")
@@ -132,3 +38,8 @@ def read_data():
     log_query("SELECT * FROM customer_feedback_satisfaction;")
     conn.close()
     return data
+
+
+if "__name__" == "__main__":
+    read_data()
+    general_query()
