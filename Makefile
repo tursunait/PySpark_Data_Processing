@@ -5,7 +5,7 @@ install:
 
 # Run tests using pytest and generate coverage
 test:
-	python -m pytest -vv --cov=main --cov= test_*.py
+	python -m pytest -vv --cov=main test_main.py
 
 # Run unittests directly
 unittest:

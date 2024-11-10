@@ -1,55 +1,54 @@
-"""
-ETL-Query script
-"""
+# main.py
 
-import argparse
-import sys
-from mylib.query import general_query, read_data
-from mylib.loading import load
-
-
-# Handle arguments function
-def handle_arguments(args):
-    """Handles actions based on initial calls"""
-    parser = argparse.ArgumentParser(description="ETL-Query script")
-
-    # Define the action argument
-    parser.add_argument(
-        "action",
-        choices=[
-            "load",
-            "general_query",
-            "read_data",
-        ],
-    )
-    # Parse only the action first
-    args = parser.parse_args(args[:1])
-    print(f"Action: {args.action}")
-
-    # Define specific arguments for each action
-    if args.action == "load":
-        parser.add_argument(
-            "--dataset", default="data/customer_feedback_satisfaction.csv"
-        )
-
-    if args.action == "general_query":
-        parser.add_argument("query")
-
-    # Parse again to get all the necessary arguments
-    full_args = parser.parse_args(sys.argv[1:])
-    return full_args
+from pyspark_lib import (
+    set_pyspark_python_env,
+    start_spark,
+    read_csv,
+    show_data,
+    show_summary_stats,
+    calculate_avg_satisfaction_by_country,
+    plot_corr_matrix,
+    plot_satisfaction_distribution,
+    end_spark,
+)
 
 
 def main():
-    args = handle_arguments(sys.argv[1:])
+    # Set the Python path for PySpark
+    set_pyspark_python_env("python3")
 
-    if args.action == "load":
-        load(args.dataset)
-    elif args.action == "general_query":
-        general_query(args.query)
-    elif args.action == "read_data":
-        data = read_data()
-        print(data)
+    # Start Spark session
+    spark = start_spark("CustomerFeedbackAnalysis")
+
+    # Load CSV data
+    file_path = "data/customer_feedback_satisfaction.csv"
+    df = read_csv(spark, file_path)
+
+    # Register DataFrame as a SQL view
+    df.createOrReplaceTempView("customer_feedback")
+
+    # Show data and summary statistics
+    show_data(df)
+    show_summary_stats(df, ["Age", "Income", "PurchaseFrequency", "SatisfactionScore"])
+
+    # Calculate and show average satisfaction by country
+    calculate_avg_satisfaction_by_country(spark)
+
+    # Plot correlation matrix and satisfaction distribution
+    plot_corr_matrix(
+        df,
+        [
+            "Income",
+            "ProductQuality",
+            "ServiceQuality",
+            "PurchaseFrequency",
+            "SatisfactionScore",
+        ],
+    )
+    plot_satisfaction_distribution(df)
+
+    # End Spark session
+    end_spark(spark)
 
 
 if __name__ == "__main__":

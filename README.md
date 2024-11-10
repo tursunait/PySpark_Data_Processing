@@ -1,269 +1,117 @@
-[![Rust CI/CD Pipeline](https://github.com/tursunait/Individual_Project_2_Tursunai_DE/actions/workflows/cicd.yml/badge.svg)](https://github.com/tursunait/Individual_Project_2_Tursunai_DE/actions/workflows/cicd.yml) 
+# Customer Satisfaction Analysis (Feedback) - PySpark Data Processing
 
-# Urbanization Data CLI Tool
-### By Tursunai Turumbekova
-[Link To Demo Video](https://youtu.be/5NmfvoShtM0)
-
-This Rust-based command-line tool extracts, transforms, and loads urbanization data into an SQLite database, allowing for CRUD (Create, Read, Update, Delete) operations. The project is set up with continuous integration and a structured `Makefile` for ease of use, with support for GitHub Actions CI/CD workflows. 
-
-## Table of Contents
-
-- [Features](#features)
-- [Setup](#setup)
-- [Usage](#usage)
-- [File Structure](#file-structure)
-- [Makefile Commands](#makefile-commands)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Dependencies](#dependencies)
-- [Contributing](#contributing)
+## Project Overview
+This project leverages PySpark to analyze and visualize customer feedback data, with a focus on satisfaction scores across different countries and loyalty levels. The analysis aims to derive insights into factors influencing customer satisfaction, using a combination of Spark SQL queries and PySpark DataFrame transformations. The project also includes CI/CD integration for testing, formatting, and deployment.
 
 ## Features
+- **Data Loading**: Load and process a large dataset of customer feedback.
+- **Spark SQL Queries**: Execute SQL queries on PySpark DataFrames to derive insights.
+- **Data Transformations**: Apply transformations to compute and analyze various metrics.
+- **Visualization**: Generate visualizations for correlation and distribution of satisfaction scores.
+- **Logging**: Log outputs and visualizations to markdown for comprehensive reporting.
 
-1. **Data Extraction**: Downloads an urbanization dataset from a specified URL.
-2. **Data Transformation & Loading**: Loads CSV data into an SQLite database.
-3. **CRUD Operations**: Supports Create, Read, Update, and Delete operations on the database.
-4. **Continuous Integration**: GitHub Actions workflow for CI/CD.
-5. **Linting and Formatting**: Ensures code style and quality with Clippy and rustfmt.
+## Dataset
+The dataset used in this project includes customer feedback with fields like:
+- `CustomerID`
+- `Age`
+- `Gender`
+- `Country`
+- `Income`
+- `ProductQuality`
+- `ServiceQuality`
+- `PurchaseFrequency`
+- `FeedbackScore`
+- `LoyaltyLevel`
+- `SatisfactionScore`
 
-## Setup
+This data allows for a multi-faceted analysis of customer satisfaction metrics across demographics and feedback variables.
 
-### Prerequisites
+## Analysis
+### 1. Average Satisfaction by Country
+Using Spark SQL, we calculate the average `SatisfactionScore` grouped by `Country`, allowing us to compare customer satisfaction levels across different regions. This provides insights into how satisfaction varies internationally and can help identify areas with higher or lower satisfaction.
 
-- **Rust** (latest stable version recommended)
-- **SQLite** for database operations
-- **Git** for version control
-- **GitHub CLI** (optional, if using GitHub Actions locally)
+### 2. Correlation Matrix of Key Variables
+A correlation matrix is plotted for numerical columns such as `Income`, `ProductQuality`, `ServiceQuality`, `PurchaseFrequency`, and `SatisfactionScore`. This helps uncover relationships among these variables, giving insights into which factors might influence customer satisfaction the most.
 
-### Installation
+![Correlation Matrix](img/corr.png)
 
-1. **Clone the repository**:
-   ```bash
-   git clone git@github.com:tursunait/Individual_Project_2_Tursunai_DE.git
-   cd Individual_Project_2_Tursunai_DE
-   ```
+### 3. Distribution of Satisfaction Scores
+We plot a histogram to visualize the distribution of `SatisfactionScore` across all records, highlighting the overall customer satisfaction trend. This distribution reveals patterns and anomalies in customer satisfaction, which can further guide targeted improvements.
 
-2. **Install Rust**:
-   - Install Rust using [rustup](https://rustup.rs/):
-     ```bash
-     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-     ```
+![Distribution of Satisfaction Scores](img/distr.png)
 
-3. **Install Dependencies**:
-   - Rust dependencies will be handled by `Cargo`, Rust's package manager, based on `Cargo.toml`.
-   - Run the following command to build dependencies:
-     ```bash
-     cargo build
-     ```
+## Requirements
+- **PySpark** for data processing
+- **Matplotlib** and **Seaborn** for visualization
+- **Python 3.7+**
 
-### Environment Variables
-There are no environment variables required for this project.
+## Installation
 
-## Usage
-
-### Running the Program
-
-To run the program, use the `make` commands for specific operations:
-
-1. **Data Extraction**:
-   ```bash
-   make extract
-   ```
-
-2. **Load Data**:
-   ```bash
-   make load
-   ```
-
-3. **CRUD Operations**:
-   - **Create** a record:
-     ```bash
-     make create
-     ```
-   - **Read** data:
-     ```bash
-     make read
-     ```
-   - **Update** a record:
-     ```bash
-     make update
-     ```
-   - **Delete** a record:
-     ```bash
-     make delete
-     ```
-
-4. **Run All Operations in Sequence**:
-   ```bash
-   make all
-   ```
-
-### Manual Run
-Alternatively, you can run the program manually:
+Clone the repository and install dependencies:
 ```bash
-cargo run -- [extract|load|create|read|update|delete]
+git clone https://github.com/your-repo/pyspark-data-processing
+cd pyspark-data-processing
+make install
 ```
 
-## File Structure
+## Usage 
+Run the main script to process the data and generate outputs:
 
+```bash
+python main.py
 ```
-├── src
-│   ├── main.rs              # Main entry point
-│   ├── db_operations.rs     # Database operations (CRUD, loading data)
-│   └── ...
+This will:
+
+- Set up the PySpark environment
+- Load and process the data
+- Execute the analysis steps
+- Generate visualizations and log outputs in output_log.md
+
+## Project Structure
+
+```bash
+.
+├── .devcontainer
+├── .github/workflows
+│   └── cicd.yml
 ├── data
-│   └── urbanization.csv     # Data file (created during extraction)
-├── Cargo.toml               # Project manifest
-├── Makefile                 # Command automation
-└── README.md                # Project documentation
+│   └── customer_feedback_satisfaction.csv
+├── plots
+├── pyspark_lib
+│   └── __init__.py
+├── .coverage
+├── LICENSE
+├── main.ipynb
+├── main.py
+├── Makefile
+├── output_log.md
+├── pyspark_lib.py
+├── README.md
+├── requirements.txt
+└── test_main.py
 ```
 
 ## Makefile Commands
-
-The `Makefile` provides several commands to automate tasks:
-
-- **`make rust-version`**: Displays the versions of Rust utilities installed.
-- **`make lint`**: Lints the code using Clippy.
-- **`make test`**: Runs all tests.
-- **`make release`**: Builds the project in release mode.
-- **`make all`**: Runs formatting, linting, testing, and then executes the program.
-- **`make [create|read|update|delete]`**: Performs specific CRUD operations.
-
-## Interacting with CRUD Operations in the CLI
-
-This project allows you to perform CRUD (Create, Read, Update, Delete) operations directly from the command line to manage city information in the SQLite database.
-
-### Usage Examples
-
-1. **Create a New Record**
-
-  To add a new city record, use the `create` command followed by the necessary details:
-  
-  cargo run -- create <statefips> <state> <gisjoin> <lat_tract> <long_tract> <population> <adj_radiuspop_5> <urbanindex>
-
-**Example:**
-```bash
-cargo run -- create "01" "Alabama" "G0100010" 34.0 -86.0 10000 200.0 0.8
-```
-
-2. **Read All Records**
-  
-  To display all city records stored in the database, use the read command:
-
-**Example:**
-```bash
-cargo run -- read
-```
-  This command fetches and displays all entries from the database.
-
-3. **Update an Existing Record**
-
-  To update information for a specific city, use the update command along with the unique identifier (gisjoin) and the updated details:
-  
-  cargo run -- update <gisjoin> <state> <lat_tract> <long_tract> <population> <adj_radiuspop_5> <urbanindex>
-
-**Example:**
-
-```bash
-    cargo run -- update "G0100010" "Alabama" 34.1 -86.1 10001 201.0 0.9
-```
-
-4. **Delete a Record**
-  
-  To delete a city record from the database, use the delete command with the unique identifier:
-    cargo run -- delete <gisjoin>
-**Example:**
-```bash
-cargo run -- delete "G0100010"
-```
+- install: Install all required dependencies.
+- test: Run tests using pytest and generate coverage.
+- unittest: Run unit tests using unittest.
+- format: Format code using black.
+- lint: Lint code using ruff.
+- container-lint: Lint Dockerfile with hadolint.
+- refactor: Run format and lint commands.
+- deploy: Placeholder for deployment command.
+- all: Run install, lint, test, format, and deploy.
 
 ## CI/CD Pipeline
+The project includes a GitHub Actions CI/CD pipeline that:
 
-This project uses GitHub Actions for continuous integration. The pipeline configuration (`cicd.yaml`) includes:
+Installs dependencies: Installs packages listed in requirements.txt.
+Lints the code: Ensures code quality with ruff.
+Runs tests: Executes unit tests with pytest.
+Formats code: Applies black formatting.
+Deploys: Runs deployment if on the main branch (deployment setup required).
+Contribution
+Feel free to contribute by opening issues or submitting pull requests. For major changes, please discuss them in advance.
 
-1. **Linting and Formatting**: Ensures the code meets style and quality guidelines.
-2. **Build and Test**: Builds the project and runs tests.
-3. **Artifact Upload**: Archives the optimized binary.
 
-### GitHub Actions Workflow (cicd.yaml)
-The GitHub Actions workflow automates the CI/CD process by running the following steps:
-
-```yaml
-name: Rust CI/CD Pipeline
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: clippy, rustfmt
-      - name: Check Rust Versions
-        run: make rust-version
-      - name: Build Rust
-        run: make release
-      - name: Lint Code
-        run: make lint
-      - name: Run Tests
-        run: make test
-      - name: Archive Optimized Binary
-        uses: actions/upload-artifact@v3
-        with:
-          name: optimized-binary
-          path: target/release/urbanization_rs
-```
-## Optimized Rust Binary
-The project generates an optimized Rust binary to ensure maximum performance. This binary is *compiled in release mode*, incorporating various compiler optimizations that improve runtime efficiency and reduce file size.
-
-**Building the Optimized Binary**
-The CI/CD pipeline in GitHub Actions automatically builds the optimized binary in release mode. This is done using the following command in the workflow:
-
-```yaml
-- name: Build Rust in Release Mode
-  run: cargo build --release
-``` 
-This command produces the optimized binary, which is stored in the target/release directory.
-
-**Downloading the Optimized Binary**
-Once built, the optimized binary is archived as an artifact and can be downloaded directly from the GitHub Actions workflow run. This artifact is named *optimized-binary* and contains the urbanization_rs binary.
-
-In the workflow, the binary is archived with the following step:
-
-```yaml
-- name: Archive Optimized Binary
-  uses: actions/upload-artifact@v3
-  with:
-    name: optimized-binary
-    path: target/release/urbanization_rs
-```
-This step ensures that every successful build produces an easily downloadable, production-ready binary.
-
-## Dependencies
-
-The primary dependencies for this project are:
-
-- **`reqwest`**: Used for HTTP requests to download the CSV dataset.
-- **`rusqlite`**: For interfacing with the SQLite database.
-- **`csv`**: For reading and parsing CSV data.
-  
-These are managed through `Cargo.toml`.  Run `cargo build` to install them during setup.
-
-## Using ChatGPT and GitHub Copilot
-**ChatGPT**
-Throughout this project, I used ChatGPT to troubleshoot issues, find best practices for Rust error handling, and optimize code structure. ChatGPT also assisted in clarifying Rust’s syntax and unique features, helping ensure that the project followed Rust’s idiomatic style.
-
-**GitHub Copilot**
-GitHub Copilot was instrumental in suggesting code snippets, especially for repetitive patterns and common Rust syntax. Copilot provided recommendations on structuring functions, handling errors effectively, and generating efficient Rust code for interacting with the SQLite database. These AI tools helped streamline the coding process and improved productivity.
-
-## Contributing
-
-1. Fork the project.
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a pull request.
+Thank you for checking out this project! Happy coding! 😊
