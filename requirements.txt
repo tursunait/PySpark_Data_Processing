@@ -9,3 +9,4 @@ ruff==0.0.284
 #databricks
 pandas
 python-dotenv
+seaborn
